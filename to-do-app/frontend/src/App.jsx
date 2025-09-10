@@ -1,28 +1,63 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
+import { useState, useEffect } from 'react';
 import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
+import { AddTask, GetTasks, DeleteTask, ToggleTask } from "../wailsjs/go/main/App.js";
 
 function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e) => setName(e.target.value);
-    const updateResultText = (result) => setResultText(result);
+    const [tasks, setTasks] = useState([]);
+    const [title, setTitle] = useState("");
 
-    function greet() {
-        Greet(name).then(updateResultText);
+    // Загружаем задачи при старте
+    useEffect(() => {
+        loadTasks();
+    }, []);
+
+    async function loadTasks() {
+        const data = await GetTasks();
+        setTasks(data);
+    }
+
+    async function addTask() {
+        if (title.trim() === "") return;
+        await AddTask(title.trim());
+        setTitle("");   // очистить поле
+        loadTasks();    // обновить список
+    }
+
+    async function toggleTask(id) {
+        await ToggleTask(id);
+        loadTasks();
+    }
+
+    async function deleteTask(id) {
+        await DeleteTask(id);
+        loadTasks();
     }
 
     return (
         <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
+            <h1>To-Do List</h1>
+
+            <input
+                type="text"
+                placeholder="Новая задача"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+            />
+            <button onClick={addTask}>Добавить</button>
+
+            <ul>
+                {tasks.map((t) => (
+                    <li key={t.id} className={t.done ? "done" : ""}>
+                        {t.title}
+                        <button onClick={() => toggleTask(t.id)}>
+                            {t.done ? "Вернуть" : "Сделано"}
+                        </button>
+                        <button onClick={() => deleteTask(t.id)}>Удалить</button>
+                    </li>
+                ))}
+            </ul>
         </div>
-    )
+    );
 }
 
-export default App
+export default App;
