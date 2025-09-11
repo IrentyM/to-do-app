@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	app2 "to-do-app/internal/app"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -13,7 +14,7 @@ var assets embed.FS
 
 func main() {
 	// Create an instance of the app structure
-	app := NewApp()
+	app := app2.NewApp()
 
 	// Create application with options
 	err := wails.Run(&options.App{
