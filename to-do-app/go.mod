@@ -3,6 +3,8 @@ module to-do-app
 go 1.23
 
 require (
+	github.com/caarlos0/env/v10 v10.0.0
+	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/wailsapp/wails/v2 v2.10.2
 )

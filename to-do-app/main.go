@@ -2,7 +2,8 @@ package main
 
 import (
 	"embed"
-	app2 "to-do-app/internal/app"
+	"fmt"
+	app "to-do-app/internal/app"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -13,11 +14,20 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	app := app2.NewApp()
+	cfg, err := app.New()
+	if err != nil {
+		fmt.Printf("failed to parse config: %v", err)
+		return
+	}
+
+	application, err := app.NewApp(cfg)
+	if err != nil {
+		fmt.Println("failed to setup application:", err)
+		return
+	}
 
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "to-do-app",
 		Width:  1024,
 		Height: 768,
@@ -25,9 +35,9 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.startup,
+		OnStartup:        application.Startup,
 		Bind: []interface{}{
-			app,
+			application.TaskHandler,
 		},
 	})
 

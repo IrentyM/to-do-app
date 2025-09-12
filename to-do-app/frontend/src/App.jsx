@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import { AddTask, GetTasks, DeleteTask, ToggleTask } from "../wailsjs/go/main/App.js";
+import { CreateTask, GetAllTasks, DeleteTask} from "../wailsjs/go/handler/TaskHandler.js";
 
 function App() {
     const [tasks, setTasks] = useState([]);

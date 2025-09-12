@@ -1,11 +1,12 @@
-export namespace main {
+export namespace dto {
 	
 	export class Task {
 	    id: number;
 	    title: string;
 	    done: boolean;
-	    // Go type: time
-	    created_at: any;
+	    created_at: string;
+	    deadline?: string;
+	    priority: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new Task(source);
@@ -16,7 +17,38 @@ export namespace main {
 	        this.id = source["id"];
 	        this.title = source["title"];
 	        this.done = source["done"];
-	        this.created_at = this.convertValues(source["created_at"], null);
+	        this.created_at = source["created_at"];
+	        this.deadline = source["deadline"];
+	        this.priority = source["priority"];
+	    }
+	}
+
+}
+
+export namespace model {
+	
+	export class Task {
+	    ID: number;
+	    Title: string;
+	    Done: boolean;
+	    // Go type: time
+	    CreatedAt: any;
+	    // Go type: time
+	    Deadline?: any;
+	    Priority: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Task(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
+	        this.Title = source["Title"];
+	        this.Done = source["Done"];
+	        this.CreatedAt = this.convertValues(source["CreatedAt"], null);
+	        this.Deadline = this.convertValues(source["Deadline"], null);
+	        this.Priority = source["Priority"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

@@ -17,7 +17,7 @@ type App struct {
 	TaskHandler *handler.TaskHandler
 }
 
-func NewApp(cfg Config) (*App, error) {
+func NewApp(cfg *Config) (*App, error) {
 	db, err := postgres.NewPostgreConnection(cfg.Postgres)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
@@ -25,15 +25,16 @@ func NewApp(cfg Config) (*App, error) {
 
 	taskRepo := repo.NewTaskRepo(db)
 	taskUsecase := usecase.NewTaskUsecase(taskRepo)
-	taskHandler := handler.NewTaskHandler(taskUsecase)
+	taskHandler := handler.NewTaskHandler(taskUsecase, nil)
 
 	return &App{
 		TaskHandler: taskHandler,
 	}, err
 }
 
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	a.TaskHandler.SetContext(ctx)
 }
 
 //// Добавить задачу

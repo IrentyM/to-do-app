@@ -22,6 +22,8 @@ func NewPostgreConnection(cfg PostgresConfig) (*sql.DB, error) {
 		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName, cfg.SSLMode,
 	)
 
+	fmt.Println(psqlInfo)
+
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open PostgreSQL connection: %w", err)
