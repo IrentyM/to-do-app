@@ -25,8 +25,8 @@ func FromDomain(task *model.Task) Task {
 	}
 }
 
-func ToDomain(task Task) *model.Task {
-	return &model.Task{
+func ToDomain(task *Task) model.Task {
+	return model.Task{
 		ID:        task.ID,
 		Title:     task.Title,
 		Done:      task.Done,

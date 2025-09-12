@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"to-do-app/internal/adapters/repo/postgre/dao"
 	"to-do-app/internal/model"
 )
@@ -12,21 +13,22 @@ type taskRepo struct {
 	db    *sql.DB
 }
 
-const tableTask = "todoapp.task"
+const tableTask = "tasks"
 
 func NewTaskRepo(db *sql.DB) *taskRepo {
 	return &taskRepo{table: tableTask, db: db}
 }
+
 func (r *taskRepo) CreateTask(ctx context.Context, task *model.Task) (*model.Task, error) {
+	fmt.Println("REPO", *task)
 	newTask := dao.FromDomain(task)
 	query := `
 		INSERT INTO ` + r.table + `
-		(id, title, done, created_at, deadline, priority)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		(title, done, created_at, deadline, priority)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
-	_, err := r.db.ExecContext(ctx, query,
-		newTask.ID,
+	_, err := r.db.QueryContext(ctx, query,
 		newTask.Title,
 		newTask.Done,
 		newTask.CreatedAt,
@@ -38,10 +40,10 @@ func (r *taskRepo) CreateTask(ctx context.Context, task *model.Task) (*model.Tas
 		return nil, err
 	}
 
-	return dao.ToDomain(newTask), nil
+	return nil, nil
 }
 
-func (r *taskRepo) GetAllTask(ctx context.Context) ([]*model.Task, error) {
+func (r *taskRepo) GetAllTask(ctx context.Context) ([]model.Task, error) {
 	query := `
 		SELECT * FROM ` + r.table
 
@@ -51,7 +53,7 @@ func (r *taskRepo) GetAllTask(ctx context.Context) ([]*model.Task, error) {
 	}
 	defer rows.Close()
 
-	taskList := []*model.Task{}
+	taskList := []model.Task{}
 	for rows.Next() {
 		task := dao.Task{}
 		err = rows.Scan(
@@ -67,7 +69,7 @@ func (r *taskRepo) GetAllTask(ctx context.Context) ([]*model.Task, error) {
 			return nil, err
 		}
 
-		taskList = append(taskList, dao.ToDomain(task))
+		taskList = append(taskList, dao.ToDomain(&task))
 	}
 
 	err = rows.Err()
@@ -78,9 +80,31 @@ func (r *taskRepo) GetAllTask(ctx context.Context) ([]*model.Task, error) {
 	return taskList, nil
 }
 
+func (r *taskRepo) ToggleTask(ctx context.Context, task *model.Task) error {
+	object := dao.FromDomain(task)
+
+	query := `
+		UPDATE ` + r.table + `
+		SET done =  $1
+		WHERE id = $2
+	`
+
+	_, err := r.db.QueryContext(ctx, query,
+		object.Done,
+		object.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *taskRepo) DeleteTask(ctx context.Context, task *model.Task) error {
+	object := dao.FromDomain(task)
+
 	query := `DELETE FROM ` + r.table + ` WHERE id = $1`
-	_, err := r.db.ExecContext(ctx, query, task.ID)
+	_, err := r.db.ExecContext(ctx, query, object.ID)
 	if err != nil {
 		return err
 	}
