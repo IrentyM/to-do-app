@@ -6,7 +6,7 @@ export namespace dto {
 	    done: boolean;
 	    created_at: string;
 	    deadline?: string;
-	    priority: number;
+	    priority: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Task(source);

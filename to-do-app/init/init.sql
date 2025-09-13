@@ -4,10 +4,10 @@ CREATE TABLE IF NOT EXISTS tasks (
     done BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deadline TIMESTAMP NULL,
-    priority INT NOT NULL DEFAULT 1
-);
+    priority TEXT NOT NULL DEFAULT 'low'
+    );
 
 INSERT INTO tasks (title, done, priority) VALUES
-('Сделать тестовое задание', false, 3),
-('Купить продукты', true, 1),
-('Почитать книгу', false, 2);
+('Сделать тестовое задание', false, 'high'),
+('Купить продукты', true, 'low'),
+('Почитать книгу', false, 'medium');

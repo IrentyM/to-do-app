@@ -11,7 +11,7 @@ type Task struct {
 	Done      bool       `db:"done"`
 	CreatedAt time.Time  `db:"created_at"`
 	Deadline  *time.Time `db:"deadline"`
-	Priority  int32      `db:"priority"`
+	Priority  string     `db:"priority"`
 }
 
 func FromDomain(task *model.Task) Task {

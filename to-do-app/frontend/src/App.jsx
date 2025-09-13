@@ -5,6 +5,8 @@ import { CreateTask, GetAllTasks, DeleteTask, ToggleTask } from "../wailsjs/go/h
 function App() {
     const [tasks, setTasks] = useState([]);
     const [title, setTitle] = useState("");
+    const [priority, setPriority] = useState("low");
+    const [deadline, setDeadline] = useState("");
     const [filter, setFilter] = useState("all"); // all | active | done
     const [sortBy, setSortBy] = useState("date"); // date | priority
 
@@ -18,11 +20,28 @@ function App() {
     }
 
     async function addTask() {
-        if (title.trim() === "") return;
-        await CreateTask({ title, done: false, priority: 1 });
+        if (title.trim() === "") {
+            return;
+        }
+
+        let deadlineISO = null;
+        if (deadline) {
+            deadlineISO = new Date(deadline).toISOString();
+        }
+
+        await CreateTask({
+            title,
+            done: false,
+            priority,
+            deadline: deadlineISO,
+        });
+
         setTitle("");
+        setPriority("low");
+        setDeadline("");
         loadTasks();
     }
+
 
     async function toggleTask(task) {
         const updated = { ...task, done: !task.done };
@@ -47,10 +66,18 @@ function App() {
                 return new Date(b.createdAt) - new Date(a.createdAt);
             }
             if (sortBy === "priority") {
-                return b.priority - a.priority;
+                const order = { high: 3, medium: 2, low: 1 };
+                return order[b.priority] - order[a.priority];
             }
             return 0;
         });
+
+    // для отображения
+    function priorityLabel(p) {
+        if (p === "high") return "🔴 Высокий";
+        if (p === "medium") return "🟠 Средний";
+        return "🟢 Низкий";
+    }
 
     return (
         <div id="App">
@@ -63,6 +90,16 @@ function App() {
                     placeholder="Новая задача..."
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                />
+                <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                    <option value="low">🟢 Низкий</option>
+                    <option value="medium">🟠 Средний</option>
+                    <option value="high">🔴 Высокий</option>
+                </select>
+                <input
+                    type="datetime-local"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
                 />
                 <button onClick={addTask}>➕ Добавить</button>
             </div>
@@ -125,7 +162,7 @@ function App() {
                                     ⏳ {new Date(t.deadline).toLocaleDateString()}
                                 </span>
                             )}
-                            <span className="task-priority">⭐ {t.priority}</span>
+                            <span className="task-priority">{priorityLabel(t.priority)}</span>
                         </div>
 
                         <button className="delete-btn" onClick={() => deleteTask(t)}>

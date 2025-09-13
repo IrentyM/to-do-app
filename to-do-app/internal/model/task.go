@@ -8,5 +8,5 @@ type Task struct {
 	Done      bool
 	CreatedAt time.Time
 	Deadline  *time.Time
-	Priority  int32
+	Priority  string
 }

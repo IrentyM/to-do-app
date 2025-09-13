@@ -12,20 +12,10 @@ type Task struct {
 	Done      bool    `json:"done"`
 	CreatedAt string  `json:"created_at"`
 	Deadline  *string `json:"deadline"`
-	Priority  int32   `json:"priority"`
+	Priority  string  `json:"priority"`
 }
 
 func FromRequest(task Task) *model.Task {
-	//var timeCreatedAt time.Time
-	//var err error
-	//
-	//if task.CreatedAt != "" {
-	//	timeCreatedAt, err = time.Parse(time.RFC3339, task.CreatedAt)
-	//	if err != nil {
-	//		fmt.Println(err)
-	//	}
-	//}
-
 	var timeDeadline *time.Time
 	if task.Deadline != nil && *task.Deadline != "" {
 		t, err := time.Parse(time.RFC3339, *task.Deadline)
