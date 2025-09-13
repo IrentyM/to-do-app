@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import ConfirmModal from "./ConfirmModal";
 import { CreateTask, GetAllTasks, DeleteTask, ToggleTask } from "../wailsjs/go/handler/TaskHandler.js";
 
 function App() {
@@ -7,8 +8,10 @@ function App() {
     const [title, setTitle] = useState("");
     const [priority, setPriority] = useState("low");
     const [deadline, setDeadline] = useState("");
-    const [filter, setFilter] = useState("all"); // all | active | done
-    const [sortBy, setSortBy] = useState("date"); // date | priority
+    const [filter, setFilter] = useState("all");
+    const [sortBy, setSortBy] = useState("date");
+    const [taskToDelete, setTaskToDelete] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         loadTasks();
@@ -49,8 +52,15 @@ function App() {
         loadTasks();
     }
 
-    async function deleteTask(task) {
-        await DeleteTask(task);
+    function confirmDelete(task) {
+        setTaskToDelete(task);
+        setShowModal(true);
+    }
+
+    async function handleDelete() {
+        await DeleteTask(taskToDelete);
+        setShowModal(false);
+        setTaskToDelete(null);
         loadTasks();
     }
 
@@ -165,12 +175,19 @@ function App() {
                             <span className="task-priority">{priorityLabel(t.priority)}</span>
                         </div>
 
-                        <button className="delete-btn" onClick={() => deleteTask(t)}>
+                        <button className="delete-btn" onClick={() => confirmDelete(t)}>
                             🗑
                         </button>
                     </li>
                 ))}
             </ul>
+
+            <ConfirmModal
+                show={showModal}
+                task={taskToDelete}
+                onClose={() => setShowModal(false)}
+                onConfirm={handleDelete}
+            />
         </div>
     );
 }

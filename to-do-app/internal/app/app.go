@@ -6,7 +6,7 @@ import (
 	"to-do-app/internal/adapters/controller/service/handler"
 	"to-do-app/internal/adapters/repo/postgre"
 	"to-do-app/internal/usecase"
-	postgres "to-do-app/pkg"
+	"to-do-app/pkg/sqlite"
 )
 
 // App struct
@@ -17,9 +17,9 @@ type App struct {
 }
 
 func NewApp(cfg *Config) (*App, error) {
-	db, err := postgres.NewPostgreConnection(cfg.Postgres)
+	db, err := sqlite.NewSQLiteConnection()
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+		return nil, fmt.Errorf("failed to connect to SQLite: %w", err)
 	}
 
 	taskRepo := repo.NewTaskRepo(db)
