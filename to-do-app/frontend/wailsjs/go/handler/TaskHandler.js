@@ -14,10 +14,6 @@ export function GetAllTasks() {
   return window['go']['handler']['TaskHandler']['GetAllTasks']();
 }
 
-export function SetContext(arg1) {
-  return window['go']['handler']['TaskHandler']['SetContext'](arg1);
-}
-
 export function ToggleTask(arg1) {
   return window['go']['handler']['TaskHandler']['ToggleTask'](arg1);
 }

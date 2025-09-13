@@ -10,34 +10,44 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #333);
     padding: 20px;
     border-radius: 12px;
     width: 300px;
     text-align: center;
     box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .modal-buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+    gap: 10px;
 }
 
 .modal-buttons button {
+    flex: 1;
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    transition: opacity 0.2s;
 }
 
 button.cancel {
-    background: #ddd;
-    color: #333;
+    background: var(--border-color, #ddd);
+    color: var(--text-color, #333);
 }
 
 button.confirm {
     background: #d9534f;
-    color: white;
+    color: #fff;
+}
+
+button.cancel:hover,
+button.confirm:hover {
+    opacity: 0.85;
 }

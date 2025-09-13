@@ -8,14 +8,25 @@ function App() {
     const [title, setTitle] = useState("");
     const [priority, setPriority] = useState("low");
     const [deadline, setDeadline] = useState("");
-    const [filter, setFilter] = useState("all");
-    const [sortBy, setSortBy] = useState("date");
+    const [statusFilter, setStatusFilter] = useState("all"); // all | active | done
+    const [deadlineFilter, setDeadlineFilter] = useState("all"); // all | today | week | overdue
+    const [sortBy, setSortBy] = useState("date"); // date | priority
     const [taskToDelete, setTaskToDelete] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [error, setError] = useState("");
+    const [theme, setTheme] = useState("light");
 
     useEffect(() => {
         loadTasks();
     }, []);
+
+    useEffect(() => {
+        document.body.setAttribute("data-theme", theme);
+    }, [theme]);
+
+    function toggleTheme() {
+        setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    }
 
     async function loadTasks() {
         const data = await GetAllTasks();
@@ -24,6 +35,7 @@ function App() {
 
     async function addTask() {
         if (title.trim() === "") {
+            setError("❌ Введите название задачи!");
             return;
         }
 
@@ -42,9 +54,9 @@ function App() {
         setTitle("");
         setPriority("low");
         setDeadline("");
+        setError("");
         loadTasks();
     }
-
 
     async function toggleTask(task) {
         const updated = { ...task, done: !task.done };
@@ -64,11 +76,37 @@ function App() {
         loadTasks();
     }
 
-    // фильтрация
+    // фильтрация по статусу + deadline
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(startOfToday);
+    endOfToday.setDate(endOfToday.getDate() + 1);
+
+    const endOfWeek = new Date(startOfToday);
+    endOfWeek.setDate(endOfWeek.getDate() + 7);
+
     const filteredTasks = tasks
         .filter((t) => {
-            if (filter === "active") return !t.done;
-            if (filter === "done") return t.done;
+            // фильтр по статусу
+            if (statusFilter === "active" && t.done) return false;
+            if (statusFilter === "done" && !t.done) return false;
+
+            // фильтр по deadline
+            if (deadlineFilter === "today") {
+                if (!t.deadline) return false;
+                const d = new Date(t.deadline);
+                return d >= startOfToday && d < endOfToday;
+            }
+            if (deadlineFilter === "week") {
+                if (!t.deadline) return false;
+                const d = new Date(t.deadline);
+                return d >= startOfToday && d < endOfWeek;
+            }
+            if (deadlineFilter === "overdue") {
+                if (!t.deadline) return false;
+                const d = new Date(t.deadline);
+                return d < now && !t.done;
+            }
             return true;
         })
         .sort((a, b) => {
@@ -82,7 +120,7 @@ function App() {
             return 0;
         });
 
-    // для отображения
+    // отображение текста приоритета
     function priorityLabel(p) {
         if (p === "high") return "🔴 Высокий";
         if (p === "medium") return "🟠 Средний";
@@ -91,7 +129,12 @@ function App() {
 
     return (
         <div id="App">
-            <h1>📋 To-Do List</h1>
+            <header className="app-header">
+                <h1>📋 To-Do List</h1>
+                <button className="theme-toggle" onClick={toggleTheme}>
+                    {theme === "light" ? "🌙 Тёмная" : "☀️ Светлая"}
+                </button>
+            </header>
 
             {/* input */}
             <div className="task-input">
@@ -113,44 +156,28 @@ function App() {
                 />
                 <button onClick={addTask}>➕ Добавить</button>
             </div>
+            {error && <p className="error-text">{error}</p>}
 
             {/* фильтры */}
             <div className="filters">
-                <div className="filter-group">
-                    <button
-                        className={filter === "all" ? "active" : ""}
-                        onClick={() => setFilter("all")}
-                    >
-                        Все
-                    </button>
-                    <button
-                        className={filter === "active" ? "active" : ""}
-                        onClick={() => setFilter("active")}
-                    >
-                        Активные
-                    </button>
-                    <button
-                        className={filter === "done" ? "active" : ""}
-                        onClick={() => setFilter("done")}
-                    >
-                        Выполненные
-                    </button>
-                </div>
 
-                <div className="filter-group">
-                    <button
-                        className={sortBy === "date" ? "active" : ""}
-                        onClick={() => setSortBy("date")}
-                    >
-                        📅 По дате
-                    </button>
-                    <button
-                        className={sortBy === "priority" ? "active" : ""}
-                        onClick={() => setSortBy("priority")}
-                    >
-                        ⭐ По приоритету
-                    </button>
-                </div>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <option value="all">Все</option>
+                    <option value="active">Активные</option>
+                    <option value="done">Выполненные</option>
+                </select>
+
+                <select value={deadlineFilter} onChange={(e) => setDeadlineFilter(e.target.value)}>
+                    <option value="all">Все по срокам</option>
+                    <option value="today">Сегодня</option>
+                    <option value="week">На неделю</option>
+                    <option value="overdue">Просроченные</option>
+                </select>
+
+                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                    <option value="date">📅 По дате</option>
+                    <option value="priority">⭐ По приоритету</option>
+                </select>
             </div>
 
             {/* список */}
@@ -169,7 +196,13 @@ function App() {
                         <div className="task-meta">
                             {t.deadline && (
                                 <span className="task-deadline">
-                                    ⏳ {new Date(t.deadline).toLocaleDateString()}
+                                    ⏳ {new Date(t.deadline).toLocaleString([], {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit"
+                                })}
                                 </span>
                             )}
                             <span className="task-priority">{priorityLabel(t.priority)}</span>

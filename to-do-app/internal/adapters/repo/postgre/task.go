@@ -3,7 +3,6 @@ package repo
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"to-do-app/internal/adapters/repo/postgre/dao"
 	"to-do-app/internal/model"
 )
@@ -20,7 +19,6 @@ func NewTaskRepo(db *sql.DB) *taskRepo {
 }
 
 func (r *taskRepo) CreateTask(ctx context.Context, task *model.Task) (*model.Task, error) {
-	fmt.Println("REPO", *task)
 	newTask := dao.FromDomain(task)
 	query := `
 		INSERT INTO ` + r.table + `

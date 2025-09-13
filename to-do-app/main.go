@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	app "to-do-app/internal/app"
@@ -13,14 +14,15 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
-func main() {
-	cfg, err := app.New()
-	if err != nil {
-		fmt.Printf("failed to parse config: %v", err)
-		return
-	}
+const (
+	dir  = "./logs"
+	mode = "debug"
+)
 
-	application, err := app.NewApp(cfg)
+func main() {
+	ctx := context.Background()
+
+	application, err := app.NewApp(ctx, dir, mode)
 	if err != nil {
 		fmt.Println("failed to setup application:", err)
 		return
@@ -36,6 +38,7 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        application.Startup,
+		OnShutdown:       application.Shutdown,
 		Bind: []interface{}{
 			application.TaskHandler,
 		},
