@@ -34,7 +34,7 @@ It supports **task management with priorities, deadlines, filtering, sorting, da
 
 ### 2. Clone the project
 ```bash
-git clone https://github.com/your-username/to-do-app.git
+git clone git@github.com:IrentyM/to-do-app.git
 cd to-do-app
 ```
 
@@ -47,6 +47,15 @@ wails dev
 ```bash
 wails build
 ```
+
+### Run application
+```bash
+./build/bin/to-do-app.exe
+```
+
+## 🎥 Demo Video
+[Смотреть на YouTube](https://youtu.be/WfSvDx2at1w)
+    
 ---
 
 ##  Checklist
