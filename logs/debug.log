@@ -13,3 +13,5 @@
 2025-09-14 08:55:15	[34mINFO[0m	app/app.go:42	Startup app
 2025-09-14 09:03:54	[34mINFO[0m	app/app.go:42	Startup app
 2025-09-14 09:03:57	[34mINFO[0m	app/app.go:46	Shutdown app
+2025-09-14 12:56:12	[34mINFO[0m	app/app.go:47	Startup app
+2025-09-14 12:56:30	[34mINFO[0m	app/app.go:52	Shutdown app

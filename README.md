@@ -48,9 +48,14 @@ wails dev
 wails build
 ```
 
-### Run application
+### Run application Windows
 ```bash
 ./build/bin/to-do-app.exe
+```
+
+### Run application MacOS
+```bash
+./build/bin/to-do-app.app/Contents/MacOS/to-do-app
 ```
 
 ## 🎥 Demo Video
